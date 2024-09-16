@@ -2,6 +2,7 @@ import base64
 import fitz  # PyMuPDF
 import io
 from PIL import Image
+import os
 import logging
 
 # ログの設定
@@ -35,13 +36,20 @@ def pdf_to_base64(pdf_path):
     
     return base64_images
 
-# 画像ファイルをBase64に変換し、ログに記録
-image_base64 = image_to_base64("path/to/image.jpg")  # 画像ファイルのパスを指定
-logging.info(f"Base64 string for image: {image_base64}")  # 省略せずに記録
+# ファイルタイプに応じて適切な処理を行う関数
+def file_to_base64(file_path):
+    file_extension = os.path.splitext(file_path)[1].lower()
+    
+    if file_extension == ".pdf":
+        logging.info(f"Processing {file_path} as PDF.")
+        return pdf_to_base64(file_path)
+    else:
+        logging.info(f"Processing {file_path} as image.")
+        return [image_to_base64(file_path)]
 
-# PDFを画像に変換し、Base64に変換してログに記録
-pdf_base64_list = pdf_to_base64("path/to/document.pdf")  # PDFファイルのパスを指定
-for idx, img_base64 in enumerate(pdf_base64_list):
-    logging.info(f"Base64 string for PDF page {idx + 1}: {img_base64}")  # 省略せずに記録
+# ファイルをBase64に変換し、ログに記録
+file_base64 = file_to_base64("path/to/your/file.pdf")  # 画像またはPDFのパス
+for idx, encoded_str in enumerate(file_base64):
+    logging.info(f"Base64 string for file part {idx + 1}: {encoded_str}")  # 省略せずに記録
 
 print("Encoding completed. Check log.txt for details.")

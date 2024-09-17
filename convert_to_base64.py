@@ -49,7 +49,7 @@ def file_to_base64(file_path):
         return [image_to_base64(file_path)]
 
 # ファイルをBase64に変換し、ログに記録
-file_base64 = file_to_base64("/Users/higuchiyoshikazu/外部プロジェクト/AIHAT/ocr_for_gripglobe/input_testcase/images/invoice.jpg")  # 画像またはPDFのパス
+file_base64 = file_to_base64("/path/to/your/image_or_pdf")  # 画像またはPDFのパス
 
 for idx, encoded_str in enumerate(file_base64):
     logging.info(f"Base64 string for file part {idx + 1}: {encoded_str}")  # 省略せずに記録

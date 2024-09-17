@@ -11,51 +11,62 @@ logging.basicConfig(filename="log.txt", level=logging.INFO, format='%(asctime)s 
 
 # 画像ファイルをBase64形式に変換する関数
 def image_to_base64(image_path):
-    with open(image_path, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-    logging.info(f"Encoded image {image_path} to Base64.")  # ログに記録
-    return encoded_string
+    try:
+        with open(image_path, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+        logging.info(f"画像 {image_path} をBase64にエンコードしました。")
+        return encoded_string
+    except Exception as e:
+        logging.error(f"画像 {image_path} のエンコード中にエラーが発生しました: {e}")
+        return None
 
 # PDFファイルを画像に変換し、各ページをBase64形式に変換する関数 (PyMuPDFを使用)
 def pdf_to_base64(pdf_path):
-    doc = fitz.open(pdf_path)  # PDFを開く
-    base64_images = []
-    
-    for page_num in range(len(doc)):
-        page = doc.load_page(page_num)  # 各ページをロード
-        pix = page.get_pixmap()  # ページをピクセルマップに変換
-        img = Image.open(io.BytesIO(pix.tobytes("png")))  # PILで画像として読み込み
+    try:
+        doc = fitz.open(pdf_path)  # PDFを開く
+        base64_images = []
         
-        # 画像データをメモリに一時保存
-        buffered = io.BytesIO()
-        img.save(buffered, format="PNG")
+        for page_num in range(len(doc)):
+            page = doc.load_page(page_num)  # 各ページをロード
+            pix = page.get_pixmap()  # ページをピクセルマップに変換
+            img = Image.open(io.BytesIO(pix.tobytes("png")))  # PILで画像として読み込み
+            
+            # 画像データをメモリに一時保存
+            buffered = io.BytesIO()
+            img.save(buffered, format="PNG")
+            
+            # Base64エンコード
+            img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
+            base64_images.append(img_str)
+            logging.info(f"PDF {pdf_path} のページ {page_num + 1} をBase64にエンコードしました。")
         
-        # Base64エンコード
-        img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
-        base64_images.append(img_str)
-        logging.info(f"Encoded page {page_num + 1} of {pdf_path} to Base64.")  # 各ページをログに記録
-    
-    return base64_images
+        return base64_images
+    except Exception as e:
+        logging.error(f"PDF {pdf_path} の処理中にエラーが発生しました: {e}")
+        return []
 
 # ファイルタイプに応じて適切な処理を行う関数
 def file_to_base64(file_path):
     file_extension = os.path.splitext(file_path)[1].lower()
     
     if file_extension == ".pdf":
-        logging.info(f"Processing {file_path} as PDF.")
+        logging.info(f"{file_path} をPDFとして処理します。")
         return pdf_to_base64(file_path)
     else:
-        logging.info(f"Processing {file_path} as image.")
+        logging.info(f"{file_path} を画像として処理します。")
         return [image_to_base64(file_path)]
 
 # ファイルをBase64に変換し、ログに記録
-file_base64 = file_to_base64("/path/to/your/image_or_pdf")  # 画像またはPDFのパス
+file_base64 = file_to_base64("images/path")  # 画像またはPDFのパス
 
 for idx, encoded_str in enumerate(file_base64):
-    logging.info(f"Base64 string for file part {idx + 1}: {encoded_str}")  # 省略せずに記録
+    logging.info(f"ファイルパート {idx + 1} のBase64文字列: {encoded_str}")
 
 # Base64エンコードが完了したら、OpenAI API処理を呼び出す
-print("Encoding completed. Calling OpenAI API...")
+print("エンコーディングが完了しました。OpenAI APIを呼び出します...")
 
 # Base64リストをOpenAIリクエストの処理に渡す
-process_base64_list(file_base64)  # ai_request.pyの関数を呼び出す
+if file_base64:
+    process_base64_list(file_base64)
+else:
+    logging.error("処理するBase64データがありません。")

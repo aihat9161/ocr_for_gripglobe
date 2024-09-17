@@ -4,6 +4,7 @@ import io
 from PIL import Image
 import os
 import logging
+from ai_request import process_base64_list  # ai_request.py から関数をインポート
 
 # ログの設定
 logging.basicConfig(filename="log.txt", level=logging.INFO, format='%(asctime)s - %(message)s')
@@ -49,7 +50,12 @@ def file_to_base64(file_path):
 
 # ファイルをBase64に変換し、ログに記録
 file_base64 = file_to_base64("/Users/higuchiyoshikazu/外部プロジェクト/AIHAT/ocr_for_gripglobe/input_testcase/images/invoice.jpg")  # 画像またはPDFのパス
+
 for idx, encoded_str in enumerate(file_base64):
     logging.info(f"Base64 string for file part {idx + 1}: {encoded_str}")  # 省略せずに記録
 
-print("Encoding completed. Check log.txt for details.")
+# Base64エンコードが完了したら、OpenAI API処理を呼び出す
+print("Encoding completed. Calling OpenAI API...")
+
+# Base64リストをOpenAIリクエストの処理に渡す
+process_base64_list(file_base64)  # ai_request.pyの関数を呼び出す

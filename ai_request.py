@@ -3,9 +3,8 @@ import json
 import os
 from datetime import datetime
 
-# OpenAIのAPIキーを設定
-  # 必要に応じてAPIキーを更新してください
-client = OpenAI(api_key="Enter your API key here")  #  APIキーを入力
+# OpenAIのAPIキーを設定 (環境変数から読み込み)
+client = OpenAI(api_key=os.getenv("OPENAI_APIKEY"))  # .envファイルから読み込み
 
 # 生成されたjsonファイルの保存先フォルダを設定
 json_folder = "jsons"
@@ -55,12 +54,3 @@ def process_base64_list(base64_list):
 
         # レスポンスをJSON形式で保存
         save_response_as_json(response)
-
-# ファイル名を変更し、'convert_to_base64.py' からBase64リストをインポート
-from convert_to_base64 import file_to_base64
-
-# ファイルパスを指定してBase64リストを取得
-base64_list = file_to_base64("/path/to/your/image_or_pdf")  # 画像やPDFのパスを指定
-
-# Base64リストを処理し、OpenAI APIを呼び出して結果を保存
-process_base64_list(base64_list)

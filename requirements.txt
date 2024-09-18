@@ -3,3 +3,4 @@ PyMuPDFb==1.24.10
 pillow==10.4.0
 openai==1.45.0
 requests==2.32.3
+openpyxl==3.1.5

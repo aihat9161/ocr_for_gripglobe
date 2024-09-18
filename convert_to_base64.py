@@ -57,7 +57,7 @@ def file_to_base64(file_path):
         return [image_to_base64(file_path)]
 
 # ファイルをBase64に変換し、ログに記録
-file_base64 = file_to_base64("images/path")  # 画像またはPDFのパス
+file_base64 = file_to_base64("input_testcase/images/invoice.jpg")  # 画像またはPDFのパス
 
 for idx, encoded_str in enumerate(file_base64):
     logging.info(f"ファイルパート {idx + 1} のBase64文字列: {encoded_str}")

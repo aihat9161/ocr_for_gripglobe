@@ -29,7 +29,7 @@ def call_openai_api(base64_content):
                     "content": [
                         {
                             "type": "text",
-                            "text": "この画像から、取引合計金額、取引年月日、取引相手を抽出してください。"
+                            "text": "この画像から、取引合計金額、取引日付（年、月、日を一つのフィールドにまとめる）、取引相手を抽出してください。"
                         },
                         {
                             "type": "image_url",
@@ -49,10 +49,10 @@ def call_openai_api(base64_content):
                         "type": "object",
                         "properties": {
                             "amount": { "type": "integer" },
-                            "day": { "type": "integer" },
+                            "date": { "type": "string" },
                             "trading_partner": { "type": "string" }
                         },
-                        "required": ["amount", "day", "trading_partner"],
+                        "required": ["amount", "date", "trading_partner"],
                         "additionalProperties": False
                     },
                     "strict": True

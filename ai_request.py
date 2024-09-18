@@ -22,15 +22,42 @@ def call_openai_api(base64_content):
             "Content-Type": "application/json"
         }
         data = {
-            "model": "gpt-4-vision-preview",
+            "model": "gpt-4o-2024-08-06",
             "messages": [
-                {"role": "system", "content": "You are an assistant that extracts all information from invoice images."},
-                {"role": "user", "content": [
-                    {"type": "text", "text": "請求書の画像から全ての情報を抽出し、JSONフォーマットで提供してください。日付、金額、項目名、数量、単価など、見える全ての情報を含めてください。"},
-                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_content}"}}
-                ]}
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": "この画像から、取引合計金額、取引年月日、取引相手を抽出してください。"
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{base64_content}"
+                            }
+                        }
+                    ]
+                }
             ],
-            "max_tokens": 800
+            "max_tokens": 2000,
+            "response_format": {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "invoice_extraction",
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "amount": { "type": "integer" },
+                            "day": { "type": "integer" },
+                            "trading_partner": { "type": "string" }
+                        },
+                        "required": ["amount", "day", "trading_partner"],
+                        "additionalProperties": False
+                    },
+                    "strict": True
+                }
+            }
         }
         response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
         if response.status_code == 200:

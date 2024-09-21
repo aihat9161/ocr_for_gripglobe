@@ -123,7 +123,8 @@ def process_folder(folder_path):
             file_extension = os.path.splitext(filename)[1].lower()
             if file_extension in ['.jpg', '.jpeg', '.png', '.pdf', '.xlsx', '.doc', '.docx', '.heif', '.heic']:
                 file_base64 = file_to_base64(file_path)
-                all_base64.extend(file_base64)
+                for base64_data in file_base64:
+                    all_base64.append((filename, base64_data))  # ファイル名とbase64データをタプルで追加
                 processed_files += 1
                 logging.info(f"ファイル {filename} を処理しました。")
 

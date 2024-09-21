@@ -6,6 +6,7 @@ import re
 from openpyxl import Workbook, load_workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import PatternFill
+import base64
 
 # OpenAIのAPIキーを設定 (環境変数から読み込み)
 OPENAI_API_KEY = os.getenv("OPENAI_APIKEY")
@@ -32,7 +33,7 @@ def call_openai_api(base64_content):
                     "content": [
                         {
                             "type": "text",
-                            "text": "この画像から、取引合計金額、取引日付（年、月、日を一つのフィールドにまとめる）、取引相手を抽出してください。"
+                            "text": "この画像から、取引合計金額、取引日付（年、月、日を一つのフィールドにまとめる）、取引相手を抽出し、JSON形式で返してください。以下の形式で応答してください：\n{\"amount\": 取引合計金額, \"date\": \"取引日付\", \"trading_partner\": \"取引相手\"}"
                         },
                         {
                             "type": "image_url",
@@ -43,24 +44,7 @@ def call_openai_api(base64_content):
                     ]
                 }
             ],
-            "max_tokens": 2000,
-            "response_format": {
-                "type": "json_schema",
-                "json_schema": {
-                    "name": "invoice_extraction",
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "amount": { "type": "integer" },
-                            "date": { "type": "string" },
-                            "trading_partner": { "type": "string" }
-                        },
-                        "required": ["amount", "date", "trading_partner"],
-                        "additionalProperties": False
-                    },
-                    "strict": True
-                }
-            }
+            "max_tokens": 2000
         }
         response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=data)
         if response.status_code == 200:
@@ -79,18 +63,42 @@ def extract_info_from_response(response_data):
     
     content = response_data['choices'][0]['message']['content']
     
-    # JSON形式の文字列を抽出
-    json_match = re.search(r'\{.*\}', content, re.DOTALL)
-    if json_match:
-        try:
-            extracted_info = json.loads(json_match.group())
+    try:
+        # JSONデータを探す
+        json_match = re.search(r'\{.*\}', content, re.DOTALL)
+        if json_match:
+            json_str = json_match.group(0)
+            extracted_info = json.loads(json_str)
             return extracted_info
-        except json.JSONDecodeError:
-            print("JSONの解析に失敗しました。")
+        else:
+            print("JSONデータが見つかりませんでした。")
             return None
-    else:
-        print("JSONデータが見つかりませんでした。")
+    except json.JSONDecodeError:
+        print("JSONの解析に失敗しました。")
         return None
+
+# 画像ファイルの形式をチェックする関数
+def check_image_format(base64_content):
+    try:
+        image_data = base64.b64decode(base64_content)
+        # PNGの場合
+        if image_data.startswith(b'\x89PNG\r\n\x1a\n'):
+            return True
+        # JPEGの場合
+        elif image_data.startswith(b'\xff\xd8'):
+            return True
+        # GIFの場合
+        elif image_data.startswith(b'GIF87a') or image_data.startswith(b'GIF89a'):
+            return True
+        # WEBPの場合
+        elif image_data.startswith(b'RIFF') and image_data[8:12] == b'WEBP':
+            return True
+        else:
+            print("サポートされていない画像形式です。")
+            return False
+    except:
+        print("画像データの検証中にエラーが発生しました。")
+        return False
 
 # JSON形式で出力して保存する関数
 def save_response_as_json(response_data):
@@ -120,37 +128,33 @@ def check_data_completeness(data):
 def write_to_excel(data_list):
     excel_file = "json_check.xlsx"
     
-    # Excelファイルが存在する場合は読み込み、存在しない場合は新規作成
-    if os.path.exists(excel_file):
-        wb = load_workbook(excel_file)
-        ws = wb.active
-        row = ws.max_row + 1
-    else:
-        wb = Workbook()
-        ws = wb.active
-        ws.title = "json_check"
-        headers = ["Amount", "Date", "Trading Partner", "Completeness"]
-        for col, header in enumerate(headers, start=1):
-            ws.cell(row=1, column=col, value=header)
-        row = 2
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "json_check"
+
+    # ヘッダーを設定
+    headers = ["Filename", "JSON All", "JSON Three Elements", "Amount", "Date", "Trading Partner", "Completeness"]
+    for col, header in enumerate(headers, start=1):
+        ws.cell(row=1, column=col, value=header)
 
     # データを書き込む
-    for data in data_list:
-        ws.cell(row=row, column=1, value=data.get('amount'))
-        ws.cell(row=row, column=2, value=data.get('date'))
-        ws.cell(row=row, column=3, value=data.get('trading_partner'))
+    for row, (filename, data) in enumerate(data_list, start=2):
+        ws.cell(row=row, column=1, value=filename)
+        ws.cell(row=row, column=2, value=json.dumps(data, ensure_ascii=False))
+        ws.cell(row=row, column=3, value=f"{data.get('amount', '')}, {data.get('date', '')}, {data.get('trading_partner', '')}")
+        ws.cell(row=row, column=4, value=data.get('amount', ''))
+        ws.cell(row=row, column=5, value=data.get('date', ''))
+        ws.cell(row=row, column=6, value=data.get('trading_partner', ''))
         
         # データの完全性をチェックし、結果を書き込む
         is_complete = check_data_completeness(data)
-        completeness_cell = ws.cell(row=row, column=4, value='True' if is_complete else 'False')
+        completeness_cell = ws.cell(row=row, column=7, value='True' if is_complete else 'False')
         
         # セルの背景色を設定
         if is_complete:
             completeness_cell.fill = PatternFill(start_color="00FF00", end_color="00FF00", fill_type="solid")
         else:
             completeness_cell.fill = PatternFill(start_color="FF0000", end_color="FF0000", fill_type="solid")
-        
-        row += 1
 
     # 列幅を自動調整
     for column in ws.columns:
@@ -162,21 +166,24 @@ def write_to_excel(data_list):
                     max_length = len(cell.value)
             except:
                 pass
-        adjusted_width = (max_length + 2)
+        adjusted_width = min(max_length + 2, 50)  # 最大幅を50に制限
         ws.column_dimensions[column_letter].width = adjusted_width
 
     # ファイルを保存
     wb.save(excel_file)
     print(f"データが {excel_file} に書き込まれました。")
-
+    
 # Base64エンコードされたコンテンツのリストを受け取り、処理する関数
 def process_base64_list(base64_list):
     all_data = []
-    for base64_content in base64_list:
-        response = call_openai_api(base64_content)
-        extracted_info = save_response_as_json(response)
-        if extracted_info:
-            all_data.append(extracted_info)
+    for filename, base64_content in base64_list:
+        if check_image_format(base64_content):
+            response = call_openai_api(base64_content)
+            extracted_info = save_response_as_json(response)
+            if extracted_info:
+                all_data.append((filename, extracted_info))
+        else:
+            print(f"ファイル {filename} はサポートされていない形式です。スキップします。")
     
     if all_data:
         write_to_excel(all_data)

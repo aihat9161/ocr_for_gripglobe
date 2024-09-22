@@ -63,29 +63,31 @@ def pdf_to_base64(pdf_path):
         return []
 
 # .xlsxファイルを処理する関数 (テキスト抽出)
-def xlsx_to_text(xlsx_path):
+def xlsx_to_base64(xlsx_path):
     try:
         df = pd.read_excel(xlsx_path)
         text_data = df.to_string(index=False)
-        logging.info(f"Excelファイル {xlsx_path} からテキストを抽出しました。")
-        return text_data
+        encoded_string = base64.b64encode(text_data.encode('utf-8')).decode('utf-8')
+        logging.info(f"Excelファイル {xlsx_path} からテキストを抽出し、Base64にエンコードしました。")
+        return encoded_string
     except Exception as e:
         logging.error(f"Excelファイル {xlsx_path} の処理中にエラーが発生しました: {e}")
-        return ""
+        return None
 
 # .docファイルを処理する関数 (テキスト抽出)
-def doc_to_text(doc_path):
+def doc_to_base64(doc_path):
     try:
         doc = docx.Document(doc_path)
         full_text = []
         for para in doc.paragraphs:
             full_text.append(para.text)
         text_data = '\n'.join(full_text)
-        logging.info(f"Wordファイル {doc_path} からテキストを抽出しました。")
-        return text_data
+        encoded_string = base64.b64encode(text_data.encode('utf-8')).decode('utf-8')
+        logging.info(f"Wordファイル {doc_path} からテキストを抽出し、Base64にエンコードしました。")
+        return encoded_string
     except Exception as e:
         logging.error(f"Wordファイル {doc_path} の処理中にエラーが発生しました: {e}")
-        return ""
+        return None
 
 # ファイルタイプに応じて適切な処理を行う関数
 def file_to_base64(file_path):
@@ -102,12 +104,10 @@ def file_to_base64(file_path):
         return [heif_to_base64(file_path)]
     elif file_extension == ".xlsx":
         logging.info(f"{file_path} をExcelファイルとして処理します。")
-        text_data = xlsx_to_text(file_path)
-        return [base64.b64encode(text_data.encode('utf-8')).decode('utf-8')]
+        return [xlsx_to_base64(file_path)]
     elif file_extension == ".doc" or file_extension == ".docx":
         logging.info(f"{file_path} をWordファイルとして処理します。")
-        text_data = doc_to_text(file_path)
-        return [base64.b64encode(text_data.encode('utf-8')).decode('utf-8')]
+        return [doc_to_base64(file_path)]
     else:
         logging.error(f"未対応のファイル形式です: {file_path}")
         return []

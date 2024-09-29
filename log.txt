@@ -1,0 +1,15 @@
+2024-09-30 02:28:01,452 - input_testcase/images/invoice.jpg を画像として処理します。
+2024-09-30 02:28:01,454 - 画像 input_testcase/images/invoice.jpg のエンコード中にエラーが発生しました: [Errno 2] No such file or directory: 'input_testcase/images/invoice.jpg'
+2024-09-30 02:28:01,455 - ファイルパート 1 のBase64文字列: None
+2024-09-30 02:28:01,834 - input_testcase/請求書/invoice-04245-19085776.pdf のコピー.pdf をPDFとして処理します。
+2024-09-30 02:28:02,198 - PDF input_testcase/請求書/invoice-04245-19085776.pdf のコピー.pdf のページ 1 をBase64にエンコードしました。
+2024-09-30 02:30:41,648 - input_testcase/images/invoice.jpg を画像として処理します。
+2024-09-30 02:30:41,649 - 画像 input_testcase/images/invoice.jpg のエンコード中にエラーが発生しました: [Errno 2] No such file or directory: 'input_testcase/images/invoice.jpg'
+2024-09-30 02:30:41,649 - ファイルパート 1 のBase64文字列: None
+2024-09-30 02:30:42,079 - input_testcase/請求書/invoice-04245-19085776.pdf のコピー.pdf をPDFとして処理します。
+2024-09-30 02:30:42,300 - PDF input_testcase/請求書/invoice-04245-19085776.pdf のコピー.pdf のページ 1 をBase64にエンコードしました。
+2024-09-30 02:42:47,386 - input_testcase/images/invoice.jpg を画像として処理します。
+2024-09-30 02:42:47,386 - 画像 input_testcase/images/invoice.jpg のエンコード中にエラーが発生しました: [Errno 2] No such file or directory: 'input_testcase/images/invoice.jpg'
+2024-09-30 02:42:47,386 - ファイルパート 1 のBase64文字列: None
+2024-09-30 02:42:48,067 - input_testcase/請求書/invoice-04245-19085776.pdf のコピー.pdf をPDFとして処理します。
+2024-09-30 02:42:48,452 - PDF input_testcase/請求書/invoice-04245-19085776.pdf のコピー.pdf のページ 1 をBase64にエンコードしました。

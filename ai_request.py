@@ -29,7 +29,7 @@ def call_openai_api(base64_content):
                     "content": [
                         {
                             "type": "text",
-                            "text": "この画像から、取引合計金額、取引日付（年、月、日を一つのフィールドにまとめる）、取引相手を抽出してください。"
+                            "text": "画像から、取引合計金額(amount)、取引年月日(date。YYYYMMDD形式)、取引相手(trading_partner)、および登録番号(Invoice Registration Number)を抽出する。登録番号はTから始まる値とする。もしそれぞれのpropertyの値が取得できない場合は、nullを選択する。"
                         },
                         {
                             "type": "image_url",
@@ -50,9 +50,10 @@ def call_openai_api(base64_content):
                         "properties": {
                             "amount": { "type": "integer" },
                             "date": { "type": "string" },
-                            "trading_partner": { "type": "string" }
+                            "trading_partner": { "type": "string" },
+                            "invoice_registration_number": { "type": "string" }
                         },
-                        "required": ["amount", "date", "trading_partner"],
+                        "required": ["amount", "date", "trading_partner", "invoice_registration_number"],
                         "additionalProperties": False
                     },
                     "strict": True

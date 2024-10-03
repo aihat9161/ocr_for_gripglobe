@@ -12,7 +12,7 @@ def process_all_files_in_folder(folder_path):
             base64_data = file_to_base64(file_path)
             response = call_openai_api(base64_data)
             print(f"ファイル: {file_name}")
-            print(f"APIレスポンス: {response}")
+            # print(f"APIレスポンス: {response}")
             extracted_info = extract_info_from_response(response)
             print(f"抽出された情報: {extracted_info}\n")
 

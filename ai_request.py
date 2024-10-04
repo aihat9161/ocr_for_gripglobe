@@ -29,7 +29,7 @@ def call_openai_api(base64_content):
                     "content": [
                         {
                             "type": "text",
-                            "text": "画像から、取引合計金額(amount)、取引年月日(date。YYYYMMDD形式)、取引相手(trading_partner)、および登録番号(Invoice Registration Number)を抽出する。登録番号はTから始まる値とする。もしそれぞれのpropertyの値が取得できない場合は、nullを選択する。"
+                            "text": "画像から、取引合計金額(amount)、取引年月日(date。YYYYMMDD形式)、取引相手(trading_partner)、および登録番号(Invoice Registration Number)を抽出する。登録番号はTから始まる値とする。もしそれぞれのpropertyの値が取得できない場合は、nullを選択する。請求書の場合、「御中」や「〜様」という文字がある時、その近くが取引相手の可能性が高い。手書きの領収書の場合、紙に印字されている部分が取引相手の可能性が高い。"
                         },
                         {
                             "type": "image_url",

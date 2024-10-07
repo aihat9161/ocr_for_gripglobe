@@ -10,9 +10,9 @@ OPENAI_API_KEY = os.getenv("OPENAI_APIKEY")
 # 生成されたJSONファイルの保存先フォルダを設定 (絶対パス)
 json_folder = os.path.join(os.path.dirname(__file__), "jsons")
 
-# jsonsフォルダが存在しない場合は作成
-if not os.path.exists(json_folder):
-    os.makedirs(json_folder)
+# jsonsフォルダが存在しない場合は作成しない（この行を削除）
+# if not os.path.exists(json_folder):
+#     os.makedirs(json_folder)
 
 # OpenAI APIを呼び出す関数
 def call_openai_api(base64_content):
@@ -35,7 +35,7 @@ def call_openai_api(base64_content):
                                 取引相手は、請求書内の「御中」や「〜様」のような言葉の近くにある名前を優先して抽出すること。取引相手が「請求元」や「発行者」の情報である場合、それを取引相手として抽出しないこと。
                                 請求書上の会社名や発行者名を除外し、相手の名前だけを取引相手として抽出すること。
                                 請求書番号は登録番号ではないため、抽出しないこと。
-                                手書きの領収書の場合、取引相手の名前は一番上に書かれていることが多いため、その部分を取得すること。また金額が5桁以上の場合、左から3番目の数字の左には桁を表す「,」が入ることが多いため、それを考慮して金額を抽出すること。
+                                手書きの領収書の場合、取引相手の名前は一番上に書かれていることが多いため、その部分を取得すること。金額は「5,000円」のように「,」が含まれる場合、そのままカンマを含む数値として認識してください。また、取引金額は日本円で表されているものとし、「1,000円」「2,500円」などカンマが正しく入っていることを期待しています。
                                 もしそれぞれのpropertyの値が取得できない場合、必ずnullを返してください。推測は禁止です。
                                 """
                         },
@@ -110,7 +110,7 @@ def save_response_as_json(response_data):
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     json_file_name = f"response_{timestamp}.json"
-    json_file_path = os.path.join(json_folder, json_file_name)
+    json_file_path = os.path.join(os.path.dirname(__file__), json_file_name)  # jsonsフォルダを使わず、現在のディレクトリに保存
     
     with open(json_file_path, "w", encoding='utf-8') as json_file:
         json.dump(extracted_info, json_file, ensure_ascii=False, indent=4)

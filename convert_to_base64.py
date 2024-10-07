@@ -52,10 +52,12 @@ def pdf_to_base64(pdf_path):
             
             buffered = io.BytesIO()
             img.save(buffered, format="PNG")
+            logging.info(f"PDF {pdf_path} のページ {page_num + 1} をPNGに変換しました。")
             
+        
             img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
             base64_images.append(img_str)
-            logging.info(f"PDF {pdf_path} のページ {page_num + 1} をBase64にエンコードしました。")
+            logging.info(f"PNG {pdf_path} のページ {page_num + 1} をBase64にエンコードしました。")
         
         return base64_images
     except Exception as e:

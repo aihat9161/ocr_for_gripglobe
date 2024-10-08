@@ -18,7 +18,6 @@ def image_to_base64(image_path):
     try:
         with open(image_path, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
-        logging.info(f"画像 {image_path} をBase64にエンコードしました。")
         return encoded_string
     except Exception as e:
         error_message = f"画像 {image_path} のエンコード中にエラーが発生しました: {e}"
@@ -34,7 +33,6 @@ def heif_to_base64(heif_path):
         buffered = io.BytesIO()
         img.save(buffered, format="PNG")
         img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
-        logging.info(f"HEIFファイル {heif_path} をBase64にエンコードしました。")
         return img_str
     except Exception as e:
         error_message = f"HEIFファイル {heif_path} のエンコード中にエラーが発生しました: {e}"
@@ -42,7 +40,7 @@ def heif_to_base64(heif_path):
         return None
 
 # PDFファイルを画像に変換し、各ページをBase64形式に変換する関数
-def pdf_to_base64(pdf_path):
+def pdf_to_base64(pdf_path, file_format):
     try:
         doc = fitz.open(pdf_path)
         base64_images = []
@@ -54,12 +52,11 @@ def pdf_to_base64(pdf_path):
             
             buffered = io.BytesIO()
             img.save(buffered, format="PNG")
-            logging.info(f"PDF {pdf_path} のページ {page_num + 1} をPNGに変換しました。")
+            logging.info(f"{file_format}から画像への変換が完了しました。")
             
             img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
             base64_images.append(img_str)
-            logging.info(f"PNG {pdf_path} のページ {page_num + 1} をBase64にエンコードしました。")
-        
+    
         return base64_images
     except Exception as e:
         error_message = f"PDF {pdf_path} の処理中にエラーが発生しました: {e}"
@@ -72,7 +69,6 @@ def xlsx_to_base64(xlsx_path):
         df = pd.read_excel(xlsx_path)
         text_data = df.to_string(index=False)
         encoded_string = base64.b64encode(text_data.encode('utf-8')).decode('utf-8')
-        logging.info(f"Excelファイル {xlsx_path} からテキストを抽出し、Base64にエンコードしました。")
         return encoded_string
     except Exception as e:
         error_message = f"Excelファイル {xlsx_path} の処理中にエラーが発生しました: {e}"
@@ -88,7 +84,6 @@ def doc_to_base64(doc_path):
             full_text.append(para.text)
         text_data = '\n'.join(full_text)
         encoded_string = base64.b64encode(text_data.encode('utf-8')).decode('utf-8')
-        logging.info(f"Wordファイル {doc_path} からテキストを抽出し、Base64にエンコードしました。")
         return encoded_string
     except Exception as e:
         error_message = f"Wordファイル {doc_path} の処理中にエラーが発生しました: {e}"
@@ -96,26 +91,18 @@ def doc_to_base64(doc_path):
         return None
 
 # ファイルタイプに応じて適切な処理を行う関数
-def file_to_base64(file_path):
+def file_to_base64(file_path, file_format):
     file_extension = os.path.splitext(file_path)[1].lower()
-    file_size = os.path.getsize(file_path)
-
-    logging.info(f"ファイル取得: {file_path}, ファイルサイズ: {file_size} bytes")
 
     if file_extension == ".pdf":
-        logging.info(f"{file_path} をPDFとして処理します。")
-        return pdf_to_base64(file_path)
+        return pdf_to_base64(file_path, file_format)
     elif file_extension in ['.jpg', '.jpeg', '.png']:
-        logging.info(f"{file_path} を画像として処理します。")
         return [image_to_base64(file_path)]
     elif file_extension == ".heif" or file_extension == ".heic":
-        logging.info(f"{file_path} をHEIFとして処理します。")
         return [heif_to_base64(file_path)]
     elif file_extension == ".xlsx":
-        logging.info(f"{file_path} をExcelファイルとして処理します。")
         return [xlsx_to_base64(file_path)]
     elif file_extension == ".doc" or file_extension == ".docx":
-        logging.info(f"{file_path} をWordファイルとして処理します。")
         return [doc_to_base64(file_path)]
     else:
         logging.error(f"未対応のファイル形式です: {file_path}")

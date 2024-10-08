@@ -7,13 +7,6 @@ import re
 # OpenAIのAPIキーを設定 (環境変数から読み込み)
 OPENAI_API_KEY = os.getenv("OPENAI_APIKEY")
 
-# 生成されたJSONファイルの保存先フォルダを設定 (絶対パス)
-json_folder = os.path.join(os.path.dirname(__file__), "jsons")
-
-# jsonsフォルダが存在しない場合は作成しない（この行を削除）
-# if not os.path.exists(json_folder):
-#     os.makedirs(json_folder)
-
 # OpenAI APIを呼び出す関数
 def call_openai_api(base64_content):
     try:

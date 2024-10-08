@@ -19,11 +19,11 @@ def main():
         for image_file in image_files:
             image_path = os.path.join(folder_path, image_file)
             file_size = os.path.getsize(image_path)
-            logging.info(f"ファイル形式：{image_file.split('.')[-1]}, ファイルサイズ：{file_size} bytes")
+            file_format = image_file.split('.')[-1]
+            logging.info(f"ファイル形式：{file_format}, ファイルサイズ：{file_size} bytes")
 
             try:
-                logging.info(f"{image_file}をbase64に変換中...")
-                base64_images = file_to_base64(image_path)
+                base64_images = file_to_base64(image_path, file_format)
             except Exception as e:
                 error_message = f"{image_file}のbase64変換中にエラーが発生しました: {e}"
                 logging.error(error_message)
@@ -42,7 +42,6 @@ def main():
                 continue
             
             try:
-                logging.info(f"レスポンスから情報を抽出中...")
                 extracted_info = extract_info_from_response(response)
                 logging.info(f"抽出された情報: {extracted_info}")
                 print(extracted_info)

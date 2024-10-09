@@ -10,7 +10,8 @@ def main():
     folder_path = 'input_testcase'
     
     try:
-        image_files = [f for f in os.listdir(folder_path) if f.endswith(('.png', '.jpg', '.jpeg', '.heif', '.pdf'))]
+        supported_formats = ('.png', '.jpg', '.jpeg', '.heif', '.pdf', '.xlsx')
+        image_files = [f for f in os.listdir(folder_path) if f.endswith(supported_formats)]
         
         if not image_files:
             logging.info("input_testcaseフォルダに画像ファイルが見つかりませんでした。")
@@ -22,8 +23,16 @@ def main():
             file_format = image_file.split('.')[-1]
             logging.info(f"ファイル形式：{file_format}, ファイルサイズ：{file_size} bytes")
 
+            # ファイル形式チェック
+            if not image_file.endswith(supported_formats):
+                logging.error(f"未対応のファイル形式です: {image_file}")
+                continue
+
             try:
                 base64_images = file_to_base64(image_path, file_format)
+                if not base64_images:
+                    logging.error(f"ファイルのbase64変換に失敗しました: {image_file}")
+                    continue
             except Exception as e:
                 error_message = f"{image_file}のbase64変換中にエラーが発生しました: {e}"
                 logging.error(error_message)

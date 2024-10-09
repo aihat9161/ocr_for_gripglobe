@@ -6,8 +6,6 @@ import os
 import logging
 import pandas as pd
 import openpyxl
-import docx
-import pillow_heif  # HEIF/HEIC support for PIL
 from ai_request import process_base64_list
 
 # ログの設定
@@ -21,21 +19,6 @@ def image_to_base64(image_path):
         return encoded_string
     except Exception as e:
         error_message = f"画像 {image_path} のエンコード中にエラーが発生しました: {e}"
-        logging.error(error_message)
-        return None
-
-# HEIFファイルをBase64形式に変換する関数
-def heif_to_base64(heif_path):
-    try:
-        heif_file = pillow_heif.open_heif(heif_path)
-        img = Image.frombytes(heif_file.mode, heif_file.size, heif_file.data)
-        
-        buffered = io.BytesIO()
-        img.save(buffered, format="PNG")
-        img_str = base64.b64encode(buffered.getvalue()).decode('utf-8')
-        return img_str
-    except Exception as e:
-        error_message = f"HEIFファイル {heif_path} のエンコード中にエラーが発生しました: {e}"
         logging.error(error_message)
         return None
 
@@ -75,21 +58,6 @@ def xlsx_to_base64(xlsx_path):
         logging.error(error_message)
         return None
 
-# .docファイルを処理する関数
-def doc_to_base64(doc_path):
-    try:
-        doc = docx.Document(doc_path)
-        full_text = []
-        for para in doc.paragraphs:
-            full_text.append(para.text)
-        text_data = '\n'.join(full_text)
-        encoded_string = base64.b64encode(text_data.encode('utf-8')).decode('utf-8')
-        return encoded_string
-    except Exception as e:
-        error_message = f"Wordファイル {doc_path} の処理中にエラーが発生しました: {e}"
-        logging.error(error_message)
-        return None
-
 # ファイルタイプに応じて適切な処理を行う関数
 def file_to_base64(file_path, file_format):
     file_extension = os.path.splitext(file_path)[1].lower()
@@ -98,13 +66,10 @@ def file_to_base64(file_path, file_format):
         return pdf_to_base64(file_path, file_format)
     elif file_extension in ['.jpg', '.jpeg', '.png']:
         return [image_to_base64(file_path)]
-    elif file_extension == ".heif" or file_extension == ".heic":
-        return [heif_to_base64(file_path)]
     elif file_extension == ".xlsx":
         return [xlsx_to_base64(file_path)]
-    elif file_extension == ".doc" or file_extension == ".docx":
-        return [doc_to_base64(file_path)]
     else:
+        print(f"未対応のファイル形式です: {file_path}")
         logging.error(f"未対応のファイル形式です: {file_path}")
         return []
 

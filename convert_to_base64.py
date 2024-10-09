@@ -6,7 +6,6 @@ import os
 import logging
 import pandas as pd
 import openpyxl
-from ai_request import process_base64_list
 
 # ログの設定
 logging.basicConfig(filename="log.txt", level=logging.INFO, format='%(asctime)s - %(message)s')
@@ -72,22 +71,3 @@ def file_to_base64(file_path, file_format):
         print(f"未対応のファイル形式です: {file_path}")
         logging.error(f"未対応のファイル形式です: {file_path}")
         return []
-
-# フォルダ内のすべてのファイルを処理する関数
-def process_folder(folder_path):
-    all_base64 = []
-    processed_files = 0
-
-    for root, dirs, files in os.walk(folder_path):
-        for filename in files:
-            file_path = os.path.join(root, filename)
-            file_extension = os.path.splitext(filename)[1].lower()
-            if file_extension in ['.jpg', '.jpeg', '.png', '.pdf', '.xlsx', '.doc', '.docx', '.heif', '.heic']:
-                file_base64 = file_to_base64(file_path)
-                for base64_data in file_base64:
-                    all_base64.append((filename, base64_data))
-                processed_files += 1
-                logging.info(f"ファイル {filename} を処理しました。")
-
-    logging.info(f"合計 {processed_files} 個のファイルを処理しました。")
-    return all_base64

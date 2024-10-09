@@ -90,28 +90,3 @@ def extract_info_from_response(response_data):
     else:
         print("JSONデータが見つかりませんでした。")
         return None
-
-# JSON形式で出力して保存する関数
-def save_response_as_json(response_data):
-    if response_data is None:
-        return
-    
-    extracted_info = extract_info_from_response(response_data)
-    if extracted_info is None:
-        print("情報の抽出に失敗しました。")
-        return
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    json_file_name = f"response_{timestamp}.json"
-    json_file_path = os.path.join(os.path.dirname(__file__), json_file_name)  # jsonsフォルダを使わず、現在のディレクトリに保存
-    
-    with open(json_file_path, "w", encoding='utf-8') as json_file:
-        json.dump(extracted_info, json_file, ensure_ascii=False, indent=4)
-    
-    print(f"レスポンスが {json_file_path} に保存されました。")
-
-# Base64エンコードされたコンテンツのリストを受け取り、処理する関数
-def process_base64_list(base64_list):
-    for base64_content in base64_list:
-        response = call_openai_api(base64_content)
-        save_response_as_json(response)

@@ -1,6 +1,6 @@
 import os
 import logging
-from convert_to_base64 import file_to_base64
+from convert_to_base64 import data_to_base64
 from ai_request import call_openai_api, extract_info_from_response
 
 # ログ設定
@@ -29,7 +29,10 @@ def main():
                 continue
 
             try:
-                base64_images = file_to_base64(image_path, file_format)
+                with open(image_path, mode="rb") as f:
+                    bin_file = f.read()
+
+                base64_images = data_to_base64(bin_file, file_format)
                 if not base64_images:
                     logging.error(f"ファイルのbase64変換に失敗しました: {image_file}")
                     continue

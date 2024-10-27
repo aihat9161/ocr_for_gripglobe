@@ -7,7 +7,7 @@ import json
 
 # ログ設定
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-file_path = 'input_testcase/Failed'
+file_path = 'input_testcase/Failed2'
 output_excel_path = 'output_results.xlsx'
 
 def write_to_excel(wb, ws, filename, full_json, extracted_json, amount, date, trading_partner, invoice_registration_number):
